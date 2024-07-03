@@ -24,7 +24,8 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        maxlength: 10
+        maxlength: 10,
+        minlength: 10
     },
     password: {
         type: String,
@@ -68,7 +69,7 @@ userSchema.methods.generateAuthToken = async function () {
 userSchema.statics.removeUser = async function (id) {
     const user = await User.findByIdAndDelete(id)
     if (!user) throw new Error('User Not found : 404');
-    await Tasks.deleteMany({ owner: id });
+    // await Tasks.deleteMany({ owner: id });
     return user;
 }
 
