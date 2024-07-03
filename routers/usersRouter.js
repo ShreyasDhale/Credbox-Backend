@@ -16,12 +16,6 @@ const upload = multer({
     }
 })
 
-
-
-router.get('/', async (req, res) => {
-    res.sendFile(path.join(__dirname, "../views", "Home.html"))
-});
-
 router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredential(req.body.email, req.body.password);
