@@ -2,8 +2,6 @@
 
 const express = require('express');
 const AppInfo = require('../db/models/appLinks');
-const multer = require('multer');
-const path = require('path');
 
 const router = express.Router();
 router.get('/apks', async (req, res) => {
