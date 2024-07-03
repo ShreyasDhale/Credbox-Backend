@@ -1,0 +1,23 @@
+Users:
+
+    GET:
+        url                 :it will return home page html
+        url/users           :it will get all users in the database 
+        url/users/me        :returns authorized user using headders passed
+        url/users/:id       :returns user according to id passed in url as parameters
+        url/users/:id/avatar:returns users profile picture
+
+    POST:
+
+        url/users/login     :returns user according to passed email and password                        
+        url/users/logout    :returns user and loged out and takes input as authorization headders       
+        url/users           :returns user created by accepting the body
+        url/users/me/avatar :returns user by uploading avatar
+
+    PATCH:
+
+        url/users/:id       :returns updated user according to body passed
+
+    DELETE:
+    
+        url/users/:id       :deletes user and tasks associated to it from database
