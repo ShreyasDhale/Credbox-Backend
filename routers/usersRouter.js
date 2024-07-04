@@ -78,7 +78,7 @@ router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) 
     try {
         req.user.avatar = req.file.buffer;
         await req.user.save();
-        res.send(req.user);
+        res.status(200).send(req.user);
     } catch (e) {
         res.status(400).send({ error: e.message });
     }
