@@ -183,14 +183,17 @@ router.get('/users/:email/:otp', async (req, res) => {
 router.get('/users/:email/verify/:otp', async (req, res) => {
     try {
         const email = req.params.email;
+        const otp = req.params.otp;
         const user = await User.findOne({ email });
-        if (User.validateOtp(req.params.otp, user.otp)) {
+        const isMatch = await User.validateOtp(otp, user.otp); 
+        if (isMatch) {
             res.status(200).send("otp verified")
         } else {
             res.status(401).send('verification failed')
         }
     } catch (e) {
         res.status(500).send(e.message);
+        console.log(e)
     }
 });
 

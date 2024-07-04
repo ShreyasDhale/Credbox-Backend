@@ -91,8 +91,8 @@ userSchema.statics.encryptPassword = async function (password) {
     return await bcrypt.hash(password, 8);
 };
 
-userSchema.statics.validateOtp = async function (otp, user) {
-    return await bcrypt.compare(otp, user.otp);
+userSchema.statics.validateOtp = async function (otp, correctOtp) {
+    return await bcrypt.compare(otp.toString(), correctOtp);
 }
 
 userSchema.statics.deleteExpiredOtps = async function () {
