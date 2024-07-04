@@ -68,6 +68,7 @@ router.get('/users', async (req, res) => {
         res.status(200).send(users);
     } catch (e) {
         res.status(500).send(e);
+        console.log(e)
     }
 });
 
@@ -77,7 +78,7 @@ router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) 
     try {
         req.user.avatar = req.file.buffer;
         await req.user.save();
-        res.send(req.user); 
+        res.send(req.user);
     } catch (e) {
         res.status(400).send({ error: e.message });
     }
@@ -151,6 +152,39 @@ router.delete('/users/:id', async (req, res) => {
         if (!user) return res.status(404).send("User Not found");
 
         res.status(200).send(user);
+    } catch (e) {
+        res.status(500).send(e.message);
+    }
+});
+
+// OTP Configuration
+
+router.get('/users/:email/otp', async (req, res) => {
+    try {
+        const email = req.params.email;
+        const user = await User.findOne({ email })
+        if (!user) {
+            res.status(404).send({ error: "User Not Regestered" })
+        } else {
+            const otp = Math.floor(100000 + Math.random() * 999999);
+            user.otp = otp;
+            await user.save();
+            res.status(200).send({ user });
+        }
+    } catch (e) {
+        res.status(500).send(e.message);
+    }
+});
+
+router.get('/users/:email/verify/:otp', async (req, res) => {
+    try {
+        const email = req.params.email;
+        const user = await User.findOne({ email });
+        if (user.otp == req.params.otp) {
+            res.status(200).send("otp verified")
+        } else {
+            res.status(401).send('verification failed')
+        }
     } catch (e) {
         res.status(500).send(e.message);
     }

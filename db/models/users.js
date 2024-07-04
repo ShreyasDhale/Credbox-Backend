@@ -32,6 +32,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    otp: {
+        type: Number,
+        maxlength: 6,
+        minlength: 6
+    },
+    isGoogleAccount: {
+        type: Boolean,
+        default: false,
+    },
     tokens: [
         {
             token: {
@@ -55,8 +64,11 @@ userSchema.statics.findByCredential = async function (email, password) {
 
 userSchema.methods.toJSON = function () {
     const user = this.toObject();
-    // delete user.password;
-    // delete user.tokens;
+    delete user.password;
+    delete user.tokens;
+    if (user.avatar != null) {
+        delete user.avatar
+    }
     return user;
 };
 
