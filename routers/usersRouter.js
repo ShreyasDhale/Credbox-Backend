@@ -159,20 +159,24 @@ router.delete('/users/:id', async (req, res) => {
 
 // OTP Configuration
 
-router.get('/users/:email/otp', async (req, res) => {
+router.get('/users/:email/:otp', async (req, res) => {
     try {
         const email = req.params.email;
+        const otp = req.params.otp;
         const user = await User.findOne({ email })
         if (!user) {
             res.status(404).send({ error: "User Not Regestered" })
         } else {
-            const otp = Math.floor(100000 + Math.random() * 999999);
-            user.otp = otp;
+            user.otp = await User.encryptPassword(otp);
+            user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+            console.log("otp deletion started per minute")
+            setInterval(User.deleteExpiredOtps, 60 * 1000);
             await user.save();
             res.status(200).send({ user });
         }
     } catch (e) {
         res.status(500).send(e.message);
+        console.log(e)
     }
 });
 
@@ -180,7 +184,7 @@ router.get('/users/:email/verify/:otp', async (req, res) => {
     try {
         const email = req.params.email;
         const user = await User.findOne({ email });
-        if (user.otp == req.params.otp) {
+        if (User.validateOtp(req.params.otp, user.otp)) {
             res.status(200).send("otp verified")
         } else {
             res.status(401).send('verification failed')

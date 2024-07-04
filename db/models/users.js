@@ -33,9 +33,10 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     otp: {
-        type: Number,
-        maxlength: 6,
-        minlength: 6
+        type: String,
+    },
+    otpExpires: {
+        type: Date,
     },
     isGoogleAccount: {
         type: Boolean,
@@ -89,6 +90,19 @@ userSchema.statics.removeUser = async function (id) {
 userSchema.statics.encryptPassword = async function (password) {
     return await bcrypt.hash(password, 8);
 };
+
+userSchema.statics.validateOtp = async function (otp, user) {
+    return await bcrypt.compare(otp, user.otp);
+}
+
+userSchema.statics.deleteExpiredOtps = async function () {
+    const now = new Date();
+    await User.updateMany(
+        { otpExpires: { $lte: now } },
+        { $unset: { otp: "", otpExpires: "" } }
+    );
+    console.log('Expired OTPs deleted');
+}
 
 userSchema.pre('save', async function (next) {
     const user = this;
