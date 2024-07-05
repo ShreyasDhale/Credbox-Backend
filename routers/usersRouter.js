@@ -185,6 +185,7 @@ router.get('/users/:email/verify/:otp', async (req, res) => {
         const email = req.params.email;
         const otp = req.params.otp;
         const user = await User.findOne({ email });
+        if(!user.otp) res.status(403).send("Otp Expired")
         const isMatch = await User.validateOtp(otp, user.otp); 
         if (isMatch) {
             res.status(200).send("otp verified")
