@@ -67,9 +67,6 @@ userSchema.methods.toJSON = function () {
     const user = this.toObject();
     delete user.password;
     delete user.tokens;
-    if (user.avatar != null) {
-        delete user.avatar
-    }
     return user;
 };
 
