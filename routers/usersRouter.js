@@ -27,25 +27,21 @@ router.post('/users/login', async (req, res) => {
     }
 });
 
-router.post('/users/vaildate', async (req, res) => {
-    try {
-        const user = await User.findByCredential(req.body.email, req.body.password);
-        res.status(200).send({ user });
-    } catch (e) {
-        res.status(400).send(e.message);
-        console.log(e);
-    }
-});
-
 // User logout
 
 router.post('/users/logout', auth, async (req, res) => {
     try {
-        // only for loging out current user
         req.user.tokens = req.user.tokens.filter(token => token.token !== req.token);
+        await req.user.save();
+        res.status(200).send(req.user);
+    } catch (e) {
+        res.status(500).send(e.message);
+    }
+});
 
-        // logout from all devices
-        // req.user.tokens = [];
+router.post('/users/logout/all', auth, async (req, res) => {
+    try {
+        req.user.tokens = [];
         await req.user.save();
         res.status(200).send(req.user);
     } catch (e) {
