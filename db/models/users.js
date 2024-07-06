@@ -56,13 +56,9 @@ const userSchema = new mongoose.Schema({
 userSchema.statics.findByCredential = async function (email, password) {
     const user = await this.findOne({ email });
     if (!user) throw new Error("User not found");
-    if (user.isGoogleAccount) {
-        user;
-    } else {
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) throw new Error("Invalid Credentials");
-        return user;
-    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Invalid Credentials");
+    return user;
 };
 
 userSchema.methods.toJSON = function () {
