@@ -18,6 +18,9 @@ const upload = multer({
 
 router.post('/users/login', async (req, res) => {
     try {
+        if (req.body.password == null) {
+            req.body.password = ""
+        }
         const user = await User.findByCredential(req.body.email, req.body.password);
         const token = await user.generateAuthToken();
         res.status(200).send({ user, token });
