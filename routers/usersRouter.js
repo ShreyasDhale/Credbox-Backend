@@ -27,6 +27,16 @@ router.post('/users/login', async (req, res) => {
     }
 });
 
+router.post('/users/vaildate', async (req, res) => {
+    try {
+        const user = await User.findByCredential(req.body.email, req.body.password);
+        res.status(200).send(user);
+    } catch (e) {
+        res.status(400).send(e.message);
+        console.log(e);
+    }
+});
+
 // User logout
 
 router.post('/users/logout', auth, async (req, res) => {
