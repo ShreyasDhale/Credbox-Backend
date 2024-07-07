@@ -103,7 +103,7 @@ router.get('/users/:id/avatar', async (req, res) => {
         }
 
         res.set('Content-Type', 'image/png');
-        res.send(user.avatar);
+        res.status(200).send(user.avatar);
     } catch (e) {
         res.status(404).send();
     }
@@ -172,6 +172,8 @@ router.get('/users/:email/:otp', async (req, res) => {
         const user = await User.findOne({ email })
         if (!user) {
             res.status(404).send({ error: "User Not Regestered" })
+        } else if (user.isGoogleAccount) { 
+            res.status(401).send({ error: "Google Account not Allowed"})
         } else {
             user.otp = await User.encryptPassword(otp);
             user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
