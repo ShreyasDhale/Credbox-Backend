@@ -37,6 +37,25 @@ router.post('/users/verify', async (req, res) => {
     }
 });
 
+router.post('/users/userExists/:email', async (req, res) => {
+    try {
+        const email = req.params.email
+        const user = await User.findOne({email});
+        if(user){
+            if(user.isGoogleAccount){
+                res.status(400).send("Email exisis for a Google Account");
+            } else {
+                res.status(400).send("User email exisis");
+            }
+        } else {
+            res.status(200).send();
+        }
+    } catch (e) {
+        res.status(400).send(e.message);
+        console.log(e);
+    }
+});
+
 // User logout
 
 router.post('/users/logout', auth, async (req, res) => {
@@ -182,8 +201,8 @@ router.get('/users/:email/:otp', async (req, res) => {
         const user = await User.findOne({ email })
         if (!user) {
             res.status(404).send({ error: "User Not Regestered" })
-        } else if (user.isGoogleAccount) { 
-            res.status(401).send({ error: "Google Account not Allowed"})
+        } else if (user.isGoogleAccount) {
+            res.status(401).send({ error: "Google Account not Allowed" })
         } else {
             user.otp = await User.encryptPassword(otp);
             user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
