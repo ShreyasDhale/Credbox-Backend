@@ -116,11 +116,14 @@ router.get('/users', async (req, res) => {
 
 // avater image
 
-router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
+router.post('/users/avatar/:user', upload.single('avatar'), async (req, res) => {
     try {
-        req.user.avatar = req.file.buffer;
+        const userName = req.params.user;
+        const user = User.findOne({ userName })
+        if (!user) return res.status(404).send("User Not Found")
+        user.avatar = req.file.buffer;
         await req.user.save();
-        res.status(200).send(req.user);
+        res.status(200).send(user);
     } catch (e) {
         res.status(400).send({ error: e.message });
     }
