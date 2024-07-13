@@ -63,8 +63,10 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-userSchema.statics.findByCredential = async function (email, password) {
-    const user = await this.findOne({ email });
+userSchema.statics.findByCredential = async function (identifier, password) {
+    const user = await this.findOne({
+        $or: [{ email: identifier }, { userName: identifier }]
+    });
     if (!user) throw new Error("User not found");
     if (user.isGoogleAccount) {
         return user;
