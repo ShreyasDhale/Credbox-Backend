@@ -55,7 +55,7 @@ const userSchema = new mongoose.Schema({
     ],
     deviceTokens: [
         {
-            token: {
+            deviceToken: {
                 type: String,
             },
         }
@@ -89,8 +89,10 @@ userSchema.methods.toJSON = function () {
 userSchema.methods.generateAuthToken = async function (deviceToken) {
     const user = this;
     const token = jwt.sign({ _id: user._id.toString() }, 'thisismyprivatekey');
-    user.tokens = user.tokens.concat({ token });
-    user.deviceTokens = user.deviceTokens.concat({ deviceToken });
+    if (!user.deviceTokens.find(token => token.deviceToken === deviceToken)) {
+        user.deviceTokens.push({ deviceToken });
+    }
+    user.tokens.push({ token });
     await user.save();
     return token;
 };
