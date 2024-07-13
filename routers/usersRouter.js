@@ -61,7 +61,12 @@ router.post('/users/userExists/:email', async (req, res) => {
 
 router.post('/users/logout', auth, async (req, res) => {
     try {
-        req.user.tokens = req.user.tokens.filter(token => token.token !== req.token);
+        req.user.tokens = req.user.tokens.map(tokenObj => {
+            if (tokenObj.token === req.token) {
+                return { ...tokenObj, token: null };
+            }
+            return tokenObj;
+        }).filter(tokenObj => tokenObj.token !== null);
         await req.user.save();
         res.status(200).send(req.user);
     } catch (e) {
