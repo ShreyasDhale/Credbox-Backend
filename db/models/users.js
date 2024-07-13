@@ -50,12 +50,14 @@ const userSchema = new mongoose.Schema({
         {
             token: {
                 type: String,
-                required: true
             },
-            deviceToken: {
+        }
+    ],
+    deviceTokens: [
+        {
+            token: {
                 type: String,
-                required: true
-            }
+            },
         }
     ],
     avatar: {
@@ -87,10 +89,12 @@ userSchema.methods.toJSON = function () {
 userSchema.methods.generateAuthToken = async function (deviceToken) {
     const user = this;
     const token = jwt.sign({ _id: user._id.toString() }, 'thisismyprivatekey');
-    user.tokens = user.tokens.concat({ token, deviceToken });
+    user.tokens = user.tokens.concat({ token });
+    user.deviceTokens = user.deviceTokens.concat({ deviceToken });
     await user.save();
     return token;
 };
+
 userSchema.statics.removeUser = async function (id) {
     const user = await User.findByIdAndDelete(id)
     if (!user) throw new Error('User Not found : 404');
