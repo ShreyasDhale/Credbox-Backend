@@ -103,16 +103,20 @@ router.post('/users', async (req, res) => {
 
 // list users
 
-router.get('/users', async (req, res) => {
+router.get('/users', auth, async (req, res) => {
     try {
-        const users = await User.find({});
-        if (!users) res.status(404).send("No User Found");
+        const user = req.user;
+        const users = await User.find({ _id: { $ne: user._id } });
+        if (!users || users.length === 0) {
+            return res.status(404).send("No Users Found");
+        }
         res.status(200).send(users);
     } catch (e) {
         res.status(500).send(e);
-        console.log(e)
+        console.log(e);
     }
 });
+
 
 // avater image
 
