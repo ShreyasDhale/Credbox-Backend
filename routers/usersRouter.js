@@ -6,7 +6,7 @@ const router = express.Router();
 const multer = require('multer');
 const upload = multer({
     limits: {
-        fileSize: 2000000
+        fileSize: 5242880 // 5 MB
     },
     fileFilter(req, file, cb) {
         if (!file.originalname.match(/\.(jpg|png|JPG|PNG|jpeg|JPEG)$/)) {
@@ -18,8 +18,9 @@ const upload = multer({
 
 router.post('/users/login', async (req, res) => {
     try {
+        const deviceToken = req.body.deviceToken;
         const user = await User.findByCredential(req.body.email, req.body.password);
-        const token = await user.generateAuthToken();
+        const token = await user.generateAuthToken(deviceToken);
         res.status(200).send({ user, token });
     } catch (e) {
         res.status(400).send(e.message);
@@ -40,9 +41,9 @@ router.post('/users/verify', async (req, res) => {
 router.post('/users/userExists/:email', async (req, res) => {
     try {
         const email = req.params.email
-        const user = await User.findOne({email});
-        if(user){
-            if(user.isGoogleAccount){
+        const user = await User.findOne({ email });
+        if (user) {
+            if (user.isGoogleAccount) {
                 res.status(400).send("Email exisis for a Google Account");
             } else {
                 res.status(400).send("User email exisis");
@@ -83,11 +84,17 @@ router.post('/users/logout/all', auth, async (req, res) => {
 router.post('/users', async (req, res) => {
     const user = new User(req.body);
     try {
-        const token = await user.generateAuthToken();
-        res.status(201).send({ user, token });
+        if (/\s/.test(req.body.userName.trim())) {
+            res.status(400).send('Username should not contain spaces');
+        } else {
+            await user.save();
+            res.status(201).send(user);
+        }
     } catch (e) {
-        if (e.code === 11000) {
+        if (e.keyValue && e.keyValue.email === user.email) {
             res.status(400).send('Email already exists');
+        } else if (e.keyValue && e.keyValue.userName === user.userName) {
+            res.status(400).send('Username already exists');
         } else {
             res.status(400).send(e.message);
         }

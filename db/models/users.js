@@ -5,7 +5,8 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        trim: true
+        trim: true,
+        required: true
     },
     middleName: {
         type: String,
@@ -14,6 +15,11 @@ const userSchema = new mongoose.Schema({
     lastName: {
         type: String,
         trim: true
+    },
+    userName: {
+        type: String,
+        required: true,
+        unique: true,
     },
     email: {
         type: String,
@@ -45,6 +51,10 @@ const userSchema = new mongoose.Schema({
             token: {
                 type: String,
                 required: true
+            },
+            deviceToken: {
+                type: String,
+                required: true
             }
         }
     ],
@@ -68,14 +78,14 @@ userSchema.statics.findByCredential = async function (email, password) {
 userSchema.methods.toJSON = function () {
     const user = this.toObject();
     delete user.password;
-    delete user.tokens;
+    // delete user.tokens;
     return user;
 };
 
-userSchema.methods.generateAuthToken = async function () {
+userSchema.methods.generateAuthToken = async function (deviceToken) {
     const user = this;
     const token = jwt.sign({ _id: user._id.toString() }, 'thisismyprivatekey');
-    user.tokens = user.tokens.concat({ token });
+    user.tokens = user.tokens.concat({ token, deviceToken });
     await user.save();
     return token;
 };

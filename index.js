@@ -10,5 +10,10 @@ app.use(userRouter)
 
 const port = process.env.port || 3000
 
-app.listen(port)
+const server = app.listen(port)
 console.log("Server is running at " + port)
+
+const io = require('socket.io')(server)
+io.on('connection',(socket)=>{
+    console.log('Connected Successfully ',socket.id);
+})
